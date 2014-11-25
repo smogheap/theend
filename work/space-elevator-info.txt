@@ -1,0 +1,115 @@
+(swiped from a forum, I did not compile any of this myself -penduin)
+
+
+I've compiled a list of statistics about the SE. These are mostly from the Edwards report, but some have been gleaned from the forums and various other sources. I understand that the LiftPort concept differs slightly from the Edwards and space.com SE, so you might see some that are a bit odd. Feel free to repute, disagree or add to this list and I can change it for you. If you want to discuss the implications of specific statistics, please do so in another thread as this is for reference only.
+
+91,000 km - length of ribbon with counterweight
+144,000 km - length of ribbon without counterweight
+36,000 km - height at GEO
+200-1200 km - height at LEO
+500km-1700km - area of significant meteor impact (ribbon width is doubled here)
+60-800 km - region where atomic oxygen is present (highest density at 100km)
+10 km - height above 72% of atmosphere (cruising altitude)
+
+1.5 - aproximate ribbon taper ratio
+1 micron - average ribbon thickness
+8mm/2.5cm - ribbon curvature displacement over width
+0.87 - cable mass to counterweight mass ratio
+2%-10% - approximate percentage binder mass (epoxy)
+64% - percentage mass increase for an optional Hoytether ribbon design
+
+130GPa - theoretical tensile strength of CNT
+1300 kg/m^3 - density of CNT
+1.31nm-2.25nm - diameters of CNT
+10^-4ohms meters - conductivity of CNT
+50kiloohms - approximate ribbon resistance
+3300 degrees C - approximate melting point of ribbon
+
+19,800 kg - initial ribbon mass
+5 cm - initial ribbon width at base
+11.5 cm - initial ribbon width at GEO
+1,238 kg - initial ribbon tension(capacity) before breaking
+288 kg - initial ribbon maximum payload
+
+1500 tons - final ribbon mass
+30 cm - final ribbon average width
+250.7 cm - final ribbon width at GEO
+20,000 kg - final ribbon tension(capacity)
+13,000 kg - final maximum payload
+
+1:40 - ratio of initial cross-section to final cross-section
+1.5% - increase in ribbon strength after each strand is added
+207 - number of strands added
+2.3 years - time to add 207 strands on initial ribbon
+170 days - time to produce the second SE or double the ribbon capacity
+2.8 years - time to expand the capacity by factor of 50 (large enough to lift a shuttle)
+
+200 km/hr - ribbon deployment speed
+20-40 kW - power generated during ribbon deployment
+0.46m/s - angular velocity of low end mass during ribbon deployment
+
+619 kg - initial climber mass
+0.87 - climber mass to payload mass ratio
+200 km/hr - climber speed
+97hours(4days) - time between climber launches (time it takes to reach the 0.1 G point)
+7.5 days - time for climber to reach GEO
+81W/kg - power to mass ratio of climbers
+50kW - power required for initial climber motors
+90-96% - energy effeciency of motors
+30% - approximate energy effeciency of rollers
+100 degrees C - approximate maximum heating of climber due to air friction
+200 degrees C - approximate heating of ribbon due to rollers
+1-4kW - heat generation from entire locomotion system
+
+3m - diameter of photovoltaic array
+12m - diameter of transmitter
+25cm at 100km - resolution of beam
+2.4MW - total laser output for 20,000kg capacity
+120MW - total laser output for 1x10^6kg capacity
+3-30% - wallplug to laser energy efficiency (depends on individual laser wattage)
+54W/cm^2 - beam power density
+0.84 microns - beam wavelength
+59% - photovoltaic conversion efficiency
+2% - overall laser efficiency
+50,000 km - approximate laser maximum effective distance
+20% - percentage laser energy converted to heat (17kW for initial climber)
+
+7 km - maximum altitude where wind is a problem
+1cmx7.5microns - ribbon cross-section where wind is a problem
+116km/hr - wind speed required to break initial ribbon
+
+100-400kV/m - potential differences produced in thunderstorms with 20-40C of charge
+10^14milliohms - conductivity of air
+
+1km/s - thermal velocity of atomic oxygen
+1micrometer/month - rate of atomic oxygen etching on unprotected cable
+
+2000-6000 q/cm^3/s - charge rate of the ionosphere
+5megaohms - ionospheric discharge resistance of ribbon (for 20-ton ribbon with 10^-4 milliohm resistance and 2mm^2 cross section)
+3x10^11V - approximate current voltage difference required between ionosphere and earth to produce current
+2X10^9V - maximum static voltage potential during thunderstorm
+
+<3 Mrad/yr - radiation rate for exposed cable
+10^4 Mrad - radiation hardness of epoxy/carbon fiber composites
+>1000 yrs - lifespan of irradiated fiber
+
+0.00068 V per m - maximum electromagnetic voltage at far end
+0.4ohm-meters - minimum ribbon resistance
+0.0064 W per m - maximum electromagnetic heat generation at far end
+
+8,000 - number of objects being tracked by U.S. Space Command
+100,000 - number of objects 1-10cm in diameter currently too small to be tracked
+250 days - average time between debri impacts on ribbon
+
+170,915 kg - initial spacecraft total mass
+enormous kg - maximum sustainable mass at GEO
+7.1hrs - characteristic frequency of ribbon
+0.002 G - gravity at end of ribbon (144,000 km)
+-0.08 G - centripetal acceleration at end of ribbon (144,000 km)
+
+US$40B - estimated cost of first SE
+US$14.3B - estimated cost of second SE
+US$220 per kg - estimated operating cost of SE
+
+24,000 km - altitude on the SE where a dropped object will orbit with a perigee just above the atmosphere
+47,000 km - altitude above which an object released from the SE is at or above Earth escape velocity, trajectory is hyperbolic 

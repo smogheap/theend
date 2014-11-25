@@ -1,0 +1,224 @@
+<html>
+<head>
+<title>the end / choose-your-own-adventure prototype</title>
+<style>
+body {
+	font-family: monospace;
+	background: #444;
+	color: silver;
+	margin: 0;
+	padding: 0;
+}
+a {
+	color: lightgreen;
+	font-weight: bold;
+}
+.uichunk {
+	padding: 0.5em 0;
+}
+.location {
+	background: black;
+	color: yellow;
+}
+.player.local {
+	background: darkblue;
+	color: silver;
+}
+.player {
+	background: blue;
+	color: silver;
+}
+.inventory {
+	background: olive;
+	color: black;
+}
+.species {
+	background: green;
+	color: black;
+}
+.desc {
+	padding: 0.5em;
+}
+.stats {
+	float: right;
+}
+.g {
+	color: magenta;
+}
+.temp {
+	color: orange;
+}
+.oxygen, .breath {
+	color: cyan;
+}
+.pressure {
+	color: olive;
+}
+.aware {
+	color: lime;
+}
+.water {
+	color: lightblue;
+}
+.food {
+	color: yellow;
+}
+.hidden {
+	display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="uichunk location">
+<div class="collapse">
+<img src="image/crags.svg" width="100%">
+</div>
+<div class="desc">
+<a class="chunk" href="#">[ + ]</a>
+Location: planet "Prickle" - surface
+<span class="stats">
+<span class="g">0.8G</span>
+<span class="temp">-10&deg;C</span>
+<span class="oxygen">12.8%O<sub>2</sub></span>
+<span class="pressure">0.5ATM</span>
+<a href="#">[ notes ]</a>
+</span>
+</div>
+</div>
+
+<div class="uichunk player local">
+<div class="collapse">
+<img src="image/man.svg">
+<a href="#">[ Board lander ]</a>
+</div>
+<div class="desc">
+<a class="chunk" href="#">[ + ]</a>
+Local Player: "penduin" turn 123
+<span class="stats">
+<span class="aware">Awake 5h22m</span>
+<span class="breath">Breathing</span>
+<span class="water">Hydrated</span>
+<span class="food">Full</span>
+<a href="#">[ notes ]</a>
+</span>
+</div>
+</div>
+
+<div class="uichunk player">
+<div class="collapse">
+<img src="image/woman.svg">
+<a href="#">[ Send Message ]</a>
+</div>
+<div class="desc">
+<a class="chunk" href="#">[ + ]</a>
+Remote Player: "mingo"
+<span class="stats">
+<a href="#">[ notes ]</a>
+</span>
+</div>
+</div>
+
+<div class="uichunk inventory">
+<div class="collapse">
+</div>
+<div class="desc">
+<a class="chunk" href="#">[ + ]</a>
+Inventory: 2 items
+<span class="stats">
+<span class="weight">5kg</span>
+<span class="volume">2L</span>
+<a href="#">[ notes ]</a>
+</span>
+</div>
+</div>
+
+<div class="uichunk species">
+<div class="collapse">
+<img src="image/landsquid.svg">
+<span class="jibber">
+Say, do you have any fish?  Everybody here is hungry.
+</span>
+</div>
+<div class="desc">
+<a class="chunk" href="#">[ + ]</a>
+Species: "Landsquid"
+talking
+<span class="stats">
+<span class="weight">216kg</span>
+<a href="#">[ notes ]</a>
+</span>
+</div>
+</div>
+
+<div class="uichunk location hidden">
+<div class="collapse">
+<img src="image/dune-cities.svg" width="100%">
+</div>
+<div class="desc">
+<a class="chunk" href="#">[ + ]</a>
+Location: planet "Duna" - surface
+<span class="stats">
+<span class="g">0.3G</span>
+<span class="temp">40&deg;C</span>
+<span class="oxygen">41.1%O<sub>2</sub></span>
+<span class="pressure">0.9ATM</span>
+<a href="#">[ notes ]</a>
+</span>
+</div>
+</div>
+
+<script>
+
+function chunk(e) {
+	var elm = e.target;
+	while(elm && !elm.classList.contains("uichunk")) {
+		elm = elm.parentElement;
+	}
+	elm.querySelector(".collapse").classList.toggle("hidden");
+	return false;
+}
+
+function gibberish(element) {
+	var words = element.textContent.split(new RegExp("\\W+", "g"));
+	var seps = element.textContent.split(new RegExp("\\w+", "g"));
+	words.every(function(word, idx, arr) {
+		var letter = word.trim().split("");
+		if(letter.length <= 1) {
+			return true;
+		}
+		var i = Math.floor(Math.random() * letter.length);
+		var j = Math.floor(Math.random() * letter.length);
+		while(i === j) {
+			j = Math.floor(Math.random() * letter.length);
+		}
+		var c = letter.splice(i, 1)[0];
+		letter.splice(j, 0, c);
+
+		i = Math.floor(Math.random() * letter.length);
+		letter[i] = letter[i].toUpperCase();
+		i = Math.floor(Math.random() * letter.length);
+		letter[i] = letter[i].toLowerCase();
+
+		arr[idx] = letter.join("");
+		return true;
+	});
+	var str = [];
+	while(words.length) {
+		str.push(words.shift());
+		str.push(seps.shift());
+	}
+	element.textContent = str.join("");
+	setTimeout(gibberish, 150, element);
+}
+
+Array.prototype.forEach.call(document.querySelectorAll(".chunk"), function(a) {
+	a.addEventListener("click", chunk);
+});
+Array.prototype.forEach.call(document.querySelectorAll(".jibber"), function(s) {
+	gibberish(s);
+});
+
+</script>
+</body>
+</html>

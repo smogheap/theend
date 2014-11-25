@@ -1,0 +1,210 @@
+nerd birds episode
+chozo-like galactic listeners/linguists
+
+
+previous: electronics projects
++ old CRT TV: high-power capacitor/tube
+  - defibrulator?
+  - SOS pulse: wasteful of power though...
++ signal scanner
++ statis chamber
+
+int
+ship is quiet, screens are dark.  only emergency lighting is on.
+biofilters luminesce softly.
+
+primary (small but central) display turns on
+
+screen
+signal detected 25xx-xx-xx xx:xx:xx
+..source xx:yy+zz
+..carrier wave xxMHz
+..strength xxYY
+....bound -xxYY:+xxYY
+env0: restore settings 'penduin.env'...
+env0: [OK]
+stasis0: begin wakeup cycle...
+stasis0: [OK]
+
+lights come on, stasis chamber lights/meters come online and wakeup
+cycle begins.  there are towels laid out in front of the stasis chamber
+as well as a bucket, a folded blanket, (and a joke item?)
+
+man steps out of the stasis chamber, weak on his feet, and soon falls precisely
+onto the towels, and vomits into the perfectly-placed bucket.
+
+(later)
+
+man holds finger and thumb against side of bucket, peering into it while trying
+not to smell it.
+
+man
+'bout half, getting better.  ...ugh, water.
+
+(later)
+
+man is dressed and surrounded by blanket, looking at screen.
+
+man
+xxMhz...
+
+man hooks up an oscilloscope, finds an antenna bar and clamps on.  he tweaks the
+controls and watches the display with a heterogenous mix of
+surprise, suspiscion, and hope.
+
+man
+(with doubt/disbelief) No...
+
+man ponders, then has an idea.  he grabs his (open) CRT TV from his project desk
+and brings it over to the main console.  man clears away some junk and works at
+bringing the same signal to the TV that the oscilloscope is analyzing.
+
+(later)
+
+man is struck dumb, his face lit up by the TV screen.  he looks down to continue
+wiring this to that but can barely take his eyes off the screen.  finally he
+succeeds in rebuilding the TV's audio circuit.
+
+the old TV is playing a montage of "welcome", "hello", "greetings" clips from
+various shows, mostly older and all low-definition programs, in different
+languages.
+- three stooges: (hello)x3
+- wizard of oz: we welcome you to munchkin land
+- simpsons: i bring you love!
+
+the picture cuts out while the audio continues.  man starts fumbling behind the
+CRT, and grabs a probe that's stuck under its rubber coating.  man gets a huge
+shock.
+
+black.
+
+man wakes up on a raised surface not unlike a hostpital bed.
+it is much brighter than on his ship.  painfully bright.  some
+odd clicks and mumbles are heard, and the lights lower until he no longer has
+to squint.  he begins looking around.
+
+with the light less intense, tall creatures can be seen.  they have some bird-
+like features such as downward beaks and talon-like appendiges, but have a
+slightly insect-like appearance too, with much of their bodies covered in what
+could be exoskeleton or clothing, possibly even armor.  they move slowly and
+appear very curious.
+
+one creature makes some sounds, another off-screen answers.  man is visibly
+nervous and scared, and the creatures seem to have no sense of personal space.
+when they look at him, they do so at very close and uncomfortable range.
+some mechanisms are heard, and another creature arrives.  the others slowly
+react and back away, letting the new creature stand in front of man.
+
+creature
+Good morning.
+
+man's fear gives way to surprise, but his confusion stays redlined.
+
+man
+Uhh...  Good morning to you too.
+
+the creatures react and mumble to each other.
+
+creature
+You are again conscious.  Do you have pain?
+
+man
+I ... Am I dreaming?  Am I still in stasis?
+
+the creatures talk quietly amongst each other again.
+they could be happy their guest is
+unharmed, offended by his voice, or debating ways in which to cook him.
+
+creature
+You were sent from Earth.  You read and listen in English.  Is that correct?
+
+man
+It...  Yes.  I...  Who are you?  Where am I?
+
+creature
+We call ourselves (unintelligible sounds).  This shed orbits of our home,
+(more gibberish).  Your transport is hitched to one of our lenses.
+
+man
+Hitched.  Uh...  Yeah, good.  How is it that you... speak English too?
+
+creature talks with one of the others, the one that might be in charge, if
+man were to guess.  they and several other creatures talk while man waits.
+
+one creature exits.
+
+creature
+We listen everywhere.  We have built many lenses, many... antenna, and
+we read them for waves.  Radio waves.  The waves we learn, we record for
+study.  Language, to read and speak, that is our method to ... grow.  Our
+method to explore.
+
+man
+You're ... linguists.  You're literature students.
+
+creature
+Bingo.
+
+man
+Or... maybe pop culture students.
+
+the creature that left returns with a portable tablet-style device.
+
+creature
+Our home is here.  It orbits (gibberish), as The Moon orbits Earth.  Around
+our home we build lenses like this one.  This shed is here, and your
+transport is hitched here.  Some steps through that way.
+
+man
+You breathe oxygen?  This air is just like on my ship.  My... transport.
+
+creature
+Your ship!  Yes.  We made empty this room and inserted gasses to match the
+air of your ship.  We breathe ... (gibberish).
+
+creature reveals below his head, where a tube and mask are held over gill-like
+features.  The mask separates for a moment, sounding rushing air.
+
+man
+So, you've done this before.  You've had visitors.  Like me.
+
+the creatures talk briefly.
+
+creature
+Yes, we have had visitors.  From Earth... we have had only you.
+With many sorts, we learn the waves and then the visitor arrives.  Some sorts
+arrive with no waves.  Waves for you... were recorded long ago, and then no
+more.
+
+man
+Our broadcasts.  Yeah, we... We started using digital signals, encoded and
+compressed.  It would basically look like noise ... to your ... lenses.  But
+you must use digital signals and compression.  This thing, how does it work?
+Computers, integrated circuits with clocks and instructions and memory, data
+files, command loops, you must have all that, or stuff like it?
+
+the creatures talk amongst themselves for a moment.
+
+creature
+You speak about technology.  Do you compare our (gibberish) to the machines
+inside your ship?
+
+man
+I ... No offense, I'm just curious how this works.  It looks a lot like some
+stuff we have.  Well, stuff we had.  On Earth.  I ... I like our older
+technology better.  Most of the stuff in my ship is pretty old.
+
+creature
+
+
+...
+
+
+
+man
+Well that's the tour, not a lot to see on this ship, I'm afraid.  I don't
+suppose you have any replicators or teleporters you'd be willing to give me?
+At some point I'm going to run out of beer...
+
+creature
+Do you need more machinery?  
