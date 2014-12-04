@@ -615,7 +615,8 @@ function penduinSCENE(canvas, logicWidth, logicHeight,
 	};
 
 	// set whether the scaling is jaggy or smooth
-	this.setJaggy = function setJaggy(jaggy) {
+	this.setJaggy = function setJaggy(jag) {
+		jaggy = jag;
 		ctx.mozImageSmoothingEnabled = !jaggy;
 		ctx.webkitImageSmoothingEnabled = !jaggy;
 		ctx.msImageSmoothingEnabled = !jaggy;
