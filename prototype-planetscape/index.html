@@ -13,6 +13,17 @@
   </head>
   <body>
     <canvas id="display" width=728 height=90></canvas>
-    <div id="ui"></div>
+    <form>
+      random seed: <input name="seed"><br>
+      sky: <input type="color" name="sky"><br>
+      ground: <input type="color" name="ground"><br>
+      horizon: <input name="horizon"><br>
+      layers: <input name="layers"><br>
+      hill: <input name="hill"><br>
+      jaggy: <input name="jaggy"><br>
+      suns: <input name="suns"><br>
+    </form>
+    <button onclick="javascript:apply();">apply</button>
+    <button onclick="javascript:randomize();">randomize</button>
   </body>
 </html>
