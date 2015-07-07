@@ -1,3 +1,4 @@
+GET = {};
 SCAPE = {
 	canv: null,
 	ctx: null,
@@ -204,6 +205,19 @@ function randomize() {
 window.addEventListener("load", function() {
 	SCAPE.canv = document.getElementById("display");
 	SCAPE.ctx = SCAPE.canv.getContext("2d");
+
+	if(window.location.search) {
+		var keyval = window.location.search.substring(1).split("&");
+		keyval.every(function(keyval, idx) {
+			GET[keyval.split("=")[0]] = keyval.split("=")[1];
+			return true;
+		});
+	}
+	console.log(GET);
+	Object.keys(GET).every(function(key) {
+		SCAPE[key] = GET[key];
+		return true;
+	});
 
 	setup();
 });
