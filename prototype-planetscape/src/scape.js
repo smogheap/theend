@@ -6,6 +6,7 @@ SCAPE = {
 
 	sky: "#0088ff",
 	ground: "#448800",
+	building: "#880000",
 	horizon: 0.5,
 	layers: 2,
 	hill: 0.25,
@@ -97,6 +98,50 @@ function draw_sun(radius, alpha) {
 	SCAPE.ctx.fill();
 	SCAPE.ctx.restore();
 }
+function draw_building(color) {
+	var basey;
+	var width1;
+	var width2;
+	var height;
+	var steps;
+	var tmp;
+	steps = random() * 6;
+	basex = random() * SCAPE.canv.width;
+	basey = lerp(SCAPE.horizon * SCAPE.canv.height, SCAPE.canv.height,
+				 random());
+	width1 = random() * SCAPE.canv.height;
+	width2 = random() * SCAPE.canv.height;
+	height = Math.max(random() * SCAPE.canv.height / 3, SCAPE.canv.height / 10);
+
+	SCAPE.ctx.save();
+	SCAPE.ctx.fillStyle = color;
+/*
+	SCAPE.ctx.fillStyle = lerp_color(color, SCAPE.sky,
+									 (SCAPE.canv.height - basey) /
+									 (SCAPE.canv.height * SCAPE.horizon));
+*/
+	for(var i = 0; i < steps; i++) {
+		if(width1 < width2) {
+			tmp = width1;
+			width1 = width2;
+			width2 = tmp;
+		}
+
+		SCAPE.ctx.beginPath();
+		SCAPE.ctx.moveTo(basex, basey);
+		SCAPE.ctx.lineTo(basex - (width1 / 2), basey);
+		SCAPE.ctx.lineTo(basex - (width2 / 2), basey - height);
+		SCAPE.ctx.lineTo(basex + (width2 / 2), basey - height);
+		SCAPE.ctx.lineTo(basex + (width1 / 2), basey);
+		SCAPE.ctx.closePath();
+		SCAPE.ctx.fill();
+
+		width1 = Math.min(width2, width1 * random());
+		width2 *= random();
+		basey -= height - 1;
+	}
+	SCAPE.ctx.restore();
+}
 function draw() {
 	SCAPE.ctx.fillStyle = SCAPE.sky;
 	SCAPE.ctx.fillRect(0, 0, SCAPE.canv.width, SCAPE.canv.height);
@@ -118,6 +163,7 @@ function draw() {
 								  (i + 1.0) / SCAPE.layers));
 		}
 	}
+	draw_building(SCAPE.building);
 	//console.log(SCAPE);
 }
 
@@ -125,6 +171,7 @@ function apply() {
 	SCAPE.seed = parseInt(document.getElementsByName("seed")[0].value, null);
 	SCAPE.sky = document.getElementsByName("sky")[0].value;
 	SCAPE.ground = document.getElementsByName("ground")[0].value;
+	SCAPE.building = document.getElementsByName("building")[0].value;
 	SCAPE.horizon = parseFloat(document.getElementsByName("horizon")[0].value,
 							   null);
 	SCAPE.layers = parseInt(document.getElementsByName("layers")[0].value,
@@ -139,6 +186,8 @@ function setup() {
 	document.getElementsByName("seed")[0].value = SCAPE.seed;
 	document.getElementsByName("sky")[0].value = random_color();
 	document.getElementsByName("ground")[0].value = random_color();
+	document.getElementsByName("building")[0].value = lerp_color(random_color(),
+																 "#000000", 0.5);
 	document.getElementsByName("horizon")[0].value = Math.max(Math.min(random(), 0.7), 0.3);
 	document.getElementsByName("layers")[0].value = 1 + Math.floor((random() * 3));
 	document.getElementsByName("hill")[0].value = random() * 0.5;
