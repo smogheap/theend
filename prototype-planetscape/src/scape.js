@@ -99,6 +99,35 @@ function draw_sun(radius, alpha) {
 	SCAPE.ctx.fill();
 	SCAPE.ctx.restore();
 }
+function draw_moon(radius, color) {
+	SCAPE.ctx.save();
+//	console.log(radius);
+	var x = (random() * (SCAPE.canv.width / 2)) + (SCAPE.canv.width / 2);
+	var y = random() * (SCAPE.canv.height * SCAPE.horizon);
+	var sliver = Math.min(random(), 0.8) * radius;
+
+	SCAPE.ctx.fillStyle = SCAPE.sky;
+	SCAPE.ctx.beginPath();
+	SCAPE.ctx.arc(x, y, radius, 0, Math.PI * 2);
+	SCAPE.ctx.closePath();
+	SCAPE.ctx.fill();
+
+	SCAPE.ctx.beginPath();
+	SCAPE.ctx.moveTo(x + radius, y - radius);
+	//SCAPE.ctx.quadraticCurveTo(x - sliver, y, x + radius, y + radius);
+	SCAPE.ctx.quadraticCurveTo(x - sliver, y - radius, x - sliver, y);
+	SCAPE.ctx.quadraticCurveTo(x - sliver, y + radius, x + radius, y + radius);
+	SCAPE.ctx.lineTo(x - radius, y + radius);
+	SCAPE.ctx.lineTo(x - radius, y - radius);
+	SCAPE.ctx.clip();
+
+	SCAPE.ctx.fillStyle = color;
+	SCAPE.ctx.beginPath();
+	SCAPE.ctx.arc(x, y, radius, 0, Math.PI * 2);
+	SCAPE.ctx.closePath();
+	SCAPE.ctx.fill();
+	SCAPE.ctx.restore();
+}
 function draw_building(color) {
 	var basey;
 	var width1;
@@ -150,8 +179,16 @@ function draw() {
 	var i;
 
 	var sunalpha = Math.min(random() + 0.5, 1);
+	if(SCAPE.suns > 1) {
+		sunalpha = 1;
+	}
 	for(i = 0; i < SCAPE.suns; i++) {
 		draw_sun(random() * SCAPE.canv.height, sunalpha);
+	}
+	var moonalpha = 0.75; // Math.max(random(), 0.75);
+	for(i = 0; i < SCAPE.moons; i++) {
+		draw_moon(random() * SCAPE.canv.height / 2, lerp_color(
+			"#ffffff", SCAPE.sky, moonalpha));
 	}
 
 	if(SCAPE.layers) {
@@ -181,6 +218,7 @@ function apply() {
 	SCAPE.jaggy = parseFloat(document.getElementsByName("jaggy")[0].value,
 							 null);
 	SCAPE.suns = parseInt(document.getElementsByName("suns")[0].value, null);
+	SCAPE.moons = parseInt(document.getElementsByName("moons")[0].value, null);
 	draw();
 }
 function setup() {
@@ -194,6 +232,7 @@ function setup() {
 	document.getElementsByName("hill")[0].value = random() * 0.5;
 	document.getElementsByName("jaggy")[0].value = random() * 50;
 	document.getElementsByName("suns")[0].value = Math.floor(random() * 2) + 1;
+	document.getElementsByName("moons")[0].value = Math.floor(random() * 4);
 
 	apply();
 }
