@@ -109,6 +109,17 @@ function mouseclick(e) {
 	GAME.scene.setJaggy(GAME.jaggy);
 }
 
+function keypress(e) {
+	switch(e.keyCode) {
+	case 42:  //printscreen
+		console.log("print screen");
+		GAME.scene.screenshot();
+		break;
+	default:
+		break;
+	}
+}
+
 function start() {
 	GAME.scene = new penduinSCENE(document.querySelector("canvas"),
 								  640, 360, tick);
@@ -122,6 +133,7 @@ function start() {
 	window.addEventListener("mousemove", mousemove);
 	window.addEventListener("wheel", mousewheel);
 	window.addEventListener("click", mouseclick);
+	window.addEventListener("keydown", keypress);
 }
 
 function tick(time) {

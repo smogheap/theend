@@ -13,6 +13,7 @@ function penduinOBJ(obj, cb) {
 	this.$ = {};  // hash of part names for direct manipulation
 
 	/* internal stuff */
+	var TO_RADIANS = Math.PI / 180;
 	var tags = [];
 	var pose = null;
 	var anim = null;
@@ -20,8 +21,11 @@ function penduinOBJ(obj, cb) {
 	var frompose = null;
 	var lastsolved = null;
 	var posetime = 0;
+	var instances = null;
+	var dirty = false;
 
 	var loadPart = function loadPart(part, cb) {
+		dirty = true;
 		var img;
 		var i = 0;
 		var $ = this.$;
@@ -71,14 +75,28 @@ function penduinOBJ(obj, cb) {
 		return total === obj._imgLoaded;
 	};
 
-	var drawPart = function drawPart(ctx, part, scale, displayx, displayy) {
+	var drawPart = function drawPart(ctx, part, scale, displayx, displayy, rot,
+									 instance) {
 		if((part.tag && tags.indexOf(part.tag) < 0) ||
 		   (part.hidetag && tags.indexOf(part.hidetag) >= 0)) {
 			// this part's tag or hidetag says to skip drawing.
 			return;
 		}
 
-		var TO_RADIANS = Math.PI/180;
+		if(instance && instances) {
+			instances.every(function(ins) {
+				// FIXME: not quite right if scale/x/y are 0
+				drawPart(ctx, part,
+						 ins.scale || scale,
+						 ins.x || displayx,
+						 ins.y || displayy,
+						 ins.rotate || rot,
+						 false);
+				return true;
+			}, this);
+			return;
+		}
+
 		var offx = 0;
 		var offy = 0;
 		ctx.save();
@@ -86,13 +104,13 @@ function penduinOBJ(obj, cb) {
 		if(isNaN(displayx) || isNaN(displayy)) {
 			ctx.translate(this.x * scale, this.y * scale);
 		} else {
-			ctx.translate(displayx, displayy);
+			ctx.translate(displayx * scale, displayy * scale);
 		}
 		if(part.offset) {
 			ctx.translate(part.offset.x, part.offset.y);
 		}
 		if(part._offset) {
-			ctx.translate(part._offset.x, part._offset.y);
+			ctx.translate(part._offset.x || 0, part._offset.y || 0);
 		}
 
 		if(!isNaN(part.alpha)) {
@@ -109,12 +127,21 @@ function penduinOBJ(obj, cb) {
 		if(part._scale) {
 			ctx.scale(part._scale, part._scale);
 		}
+		if(part.flipx) {
+			ctx.scale(-1, 1);
+		}
+		if(part.flipy) {
+			ctx.scale(1, -1);
+		}
 
 		if(part.pivot) {
 			offx = -part.pivot.x
 			offy = -part.pivot.y
 		}
 
+		if(!isNaN(rot)) {
+			ctx.rotate(rot * TO_RADIANS);
+		}
 		if(part.rotate) {
 			ctx.rotate(part.rotate * TO_RADIANS);
 		}
@@ -122,11 +149,10 @@ function penduinOBJ(obj, cb) {
 			ctx.rotate(part._rotate * TO_RADIANS);
 		}
 
-		if(part.below) {
-			for(i in part.below) {
-				drawPart(ctx, part.below[i], 1, offx, offy);
-			}
-		}
+		part.below && part.below.every(function partbelow(part) {
+			drawPart(ctx, part, 1, offx, offy);
+			return true;
+		});
 
 		if(part.image) {
 			var img = obj._img[part.image];
@@ -138,11 +164,10 @@ function penduinOBJ(obj, cb) {
 			}
 		}
 
-		if(part.above) {
-			for(i in part.above) {
-				drawPart(ctx, part.above[i], 1, offx, offy);
-			}
-		}
+		part.above && part.above.every(function partabove(part) {
+			drawPart(ctx, part, 1, offx, offy);
+			return true;
+		});
 
 		ctx.restore();
 	}.bind(this);
@@ -301,10 +326,38 @@ function penduinOBJ(obj, cb) {
 
 	/* API */
 
-	/* API:TAGS */
+	/* API: INSTANCES */
+	// set to null or array of {scale:1, x:2, y:3} instances
+	this.setInstances = function setInstances(arr) {
+		dirty = true;
+		instances = arr;
+	};
+	this.addInstances = function addInstances(newInst) {
+		dirty = true;
+		if(typeof(newInst) === "object") {
+			instances.push(newInst);
+		} else {
+			instances = instances.concat(newInst);
+		}
+	};
+	this.removeInstances = function removeInstances(byeInst) {
+		dirty = true;
+		if(typeof(byeInst) === "object") {
+			byeInst = [byeInst];
+		}
+		byeInst.every(function(inst) {
+			instances = instances.filter(function(item) {
+				return !(item.x === inst.x && item.y === inst.y);
+			});
+			return true;
+		});
+	};
+
+	/* API: TAGS */
 
 	// set/replace tags (to show/hide different parts)
 	this.setTags = function setTags(newTags) {
+		dirty = true;
 		if(typeof(newTags) === "string") {
 			tags = [newTags];
 		} else {
@@ -319,6 +372,7 @@ function penduinOBJ(obj, cb) {
 
 	// add one or more tags
 	this.addTags = function addTags(newTags) {
+		dirty = true;
 		if(typeof(newTags) === "string") {
 			tags = tags.concat([newTags]);
 		} else {
@@ -328,6 +382,7 @@ function penduinOBJ(obj, cb) {
 
 	// remove one or more tags
 	this.removeTags = function removeTags(byeTags) {
+		dirty = true;
 		if(typeof(byeTags) === "string") {
 			tags = tags.filter(function(tag) {
 				return tag !== byeTags;
@@ -343,13 +398,22 @@ function penduinOBJ(obj, cb) {
 
 	// clear all tags
 	this.clearTags = function clearTags() {
+		dirty = true;
 		tags = [];
 	};
 
 	/* API: POSING */
 
+	//flip x/y
+	this.flip = function flip(x, y) {
+		dirty = true;
+		obj.flipx = x;
+		obj.flipy = y;
+	};
+
 	// animate to a pose specified by name
 	this.setPose = function setPose(name, transtime) {
+		dirty = true;
 		pose = name || "_default";
 		if(isNaN(transtime)) {
 			transtime = 500;
@@ -368,6 +432,7 @@ function penduinOBJ(obj, cb) {
 		return capturePose(true);
 	};
 	this.setPoseData = function setPoseData(data) {
+		dirty = true;
 		return applyPose(data, true);
 	};
 
@@ -375,6 +440,7 @@ function penduinOBJ(obj, cb) {
 	// TODO: implement animations :^)
 	// set an animation
 	this.setAnimation = function setAnimation(name, transtime, now) {
+		dirty = true;
 		if(isNaN(transtime)) {
 			transtime = 500;
 		}
@@ -383,17 +449,88 @@ function penduinOBJ(obj, cb) {
 		frompose = capturePose();
 	},
 
+	/* API: MISC */
+
+	// check (and clear) if object is dirty (changed since last checked)
+	this.wasDirty = function wasDirty() {
+		if(dirty) {
+			dirty = false;
+			return true;
+		}
+		return false;
+	};
+
 	// draw the object
-	this.draw = function draw(ctx, scale, displayx, displayy, time) {
+	this.draw = function draw(ctx, scale, displayx, displayy, rot, time) {
 		if(time) {
 			solvePose(time);
 		}
-		drawPart(ctx, obj, scale, displayx, displayy);
+		drawPart(ctx, obj, scale, displayx, displayy, rot, true);
+	};
+}
+
+function penduinTEXT(string, size, color, centerx, centery, shadow) {
+	var visible = true;
+	var metric = null;
+	var offx = 0;
+	var offy = 0;
+	size = size || 20;
+	color = color || "white";
+
+	this.x = 0;
+	this.y = 0;
+	this.rotate = 0;
+	this.alpha = 1;
+	this.scale = 1;
+
+	// API
+	this.setVisible = function setVisible(show) {
+		visible = show;
+	};
+	this.setString = function setString(str) {
+		string = str;
+		metric = null;
+	};
+	this.setColor = function setString(col) {
+		color = col;
+	};
+
+	this.draw = function draw(ctx, scale, time) {
+		if(!visible) {
+			return;
+		}
+		ctx.save();
+		ctx.font = ((size * scale) +
+					"px monospace, Monaco, 'Lucida Console'");
+		ctx.textBaseline = "top";
+		if(!metric) {
+			metric = ctx.measureText(string);
+			offx = centerx * metric.width;
+			offy = centery * size * scale;
+		}
+		ctx.globalAlpha = this.alpha;
+		ctx.rotate(this.rotate);
+		ctx.scale(this.scale, this.scale);
+		if(shadow) {
+			ctx.fillStyle = "black";
+			ctx.fillText(string, (this.x * scale) - offx + 1, (this.y * scale) - offy + 1);
+		}
+		ctx.fillStyle = color;
+		ctx.fillText(string, (this.x * scale) - offx, (this.y * scale) - offy);
+		ctx.restore();
 	};
 }
 
 function penduinTRANSITION(cb, img, zoom, duration, rotation) {
+	var target = false;
+	var targetX = null;
+	var targetY = null;
 	var scratchCtx = document.createElement("canvas").getContext("2d");
+
+	var lerp = function lerp(from, to, prog) {
+		return (1 - prog) * from + prog * to;
+	};
+
 	if(typeof(img) === "string") {
 		console.log("auto-loading " + img);
 		var im = document.createElement("img");
@@ -431,7 +568,13 @@ function penduinTRANSITION(cb, img, zoom, duration, rotation) {
 	}
 	cb = cb || function() {};
 
-	this.draw = function draw(ctx, timeOffset, out) {
+	this.setTarget = function setTarget(x, y) {
+		targetX = x;
+		targetY = y;
+		target = (typeof(x) === "number" && typeof(y) === "number");
+	};
+
+	this.draw = function draw(ctx, timeOffset, out, scale) {
 		var prog = timeOffset / duration;
 		//prog = (Math.exp(prog) - 1) / (Math.E - 1);
 		if(!prog) {
@@ -457,9 +600,19 @@ function penduinTRANSITION(cb, img, zoom, duration, rotation) {
 		// some canvas implementations won't blot outer area without scratch
 		scratchCtx.canvas.width = ctx.canvas.width;
 		scratchCtx.canvas.height = ctx.canvas.height;
-		scratchCtx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
-		scratchCtx.scale(prog * (ctx.canvas.width / img.width * zoom),
-						 prog * (ctx.canvas.width / img.width * zoom));
+		scratchCtx.mozImageSmoothingEnabled = ctx.mozImageSmoothingEnabled;
+		scratchCtx.webkitImageSmoothingEnabled =ctx.webkitImageSmoothingEnabled;
+		scratchCtx.imageSmoothingEnabled = ctx.imageSmoothingEnabled;
+		if(target) {
+			scratchCtx.translate(lerp(targetX * scale, ctx.canvas.width / 2,
+									  prog),
+								 lerp(targetY * scale, ctx.canvas.height / 2,
+									  prog));
+		} else {
+			scratchCtx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+		}
+		scratchCtx.scale((prog * prog) * (ctx.canvas.width / img.width * zoom),
+						 (prog * prog) * (ctx.canvas.width / img.width * zoom));
 		if(rotation) {
 			scratchCtx.rotate(prog * rotation);
 		}
@@ -467,7 +620,9 @@ function penduinTRANSITION(cb, img, zoom, duration, rotation) {
 
 		ctx.save();
 		ctx.globalCompositeOperation = "destination-atop";
+
 		ctx.drawImage(scratchCtx.canvas, 0, 0);
+
 		ctx.restore();
 
 		return false;
@@ -483,7 +638,19 @@ function penduinSCENE(canvas, logicWidth, logicHeight,
 	logicWidth = logicWidth || canvas.width || 320;
 	logicHeight = logicHeight || canvas.height || 240;
 	var scale = 1.0;
-	var objects = [];
+	var redrawbg = false;
+	var bgcanv = {};
+	var bgcompcanv = null;
+	var backgrounds = {};
+	var objects = {};
+	var autoorder = true;
+	var texts = {};
+	var vignette = null;
+	var ghostAmount = 0;
+	var ghostCtx = document.createElement("canvas").getContext("2d");
+	var glowAmount = 0;
+	var glowFactor = 1;
+	var glowCtx = document.createElement("canvas").getContext("2d");
 	logicTickFunc = logicTickFunc || function() {};
 	logicTicksPerSec = logicTicksPerSec || 60;
 	var logicTickWait = Math.floor(1000 / logicTicksPerSec);
@@ -507,6 +674,7 @@ function penduinSCENE(canvas, logicWidth, logicHeight,
 	};
 
 	this.resize = function resize() {
+		redrawbg = true;
 		canvas.width = 0;
 		canvas.height = 0;
 
@@ -543,7 +711,7 @@ function penduinSCENE(canvas, logicWidth, logicHeight,
 			frametime = time - lastFrame;
 		}
 		while(frametime >= logicTickWait) {
-			logicTickFunc(this);
+			logicTickFunc(this, time);
 			ticks++
 			frametime -= logicTickWait;
 			frametime /= 1.5;  // HACK: prefer natural to exact fps
@@ -551,15 +719,90 @@ function penduinSCENE(canvas, logicWidth, logicHeight,
 
 		ctx.save();
 
+		// prepare any ghosting
+		if(ghostAmount) {
+			ghostCtx.canvas.width = canvas.width;
+			ghostCtx.canvas.height = canvas.height;
+			ghostCtx.mozImageSmoothingEnabled = ctx.mozImageSmoothingEnabled;
+			ghostCtx.webkitImageSmoothingEnabled =ctx.webkitImageSmoothingEnabled;
+			ghostCtx.imageSmoothingEnabled = ctx.imageSmoothingEnabled;
+			ghostCtx.drawImage(ctx.canvas, 0, 0, ghostCtx.canvas.width, ghostCtx.canvas.height);
+		}
+
 		ctx.fillStyle = bg;
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-		// draw objects ordered by obj.y coordinate
-		var ordered = Object.keys(objects).sort(function(a, b) {
-			return a.y - b.y;
+		// update backgrounds if necessary then draw
+		var bgctx = null;
+		Object.keys(backgrounds).every(function(key) {
+			if(backgrounds[key].wasDirty()) {
+				console.log("dirty bg '" + key + "'");
+				redrawbg = true;
+				return false;
+			}
+			return true;
 		});
+		if(redrawbg) {
+			redrawbg = false;
+			bgcompcanv = bgcompcanv || document.createElement("canvas");
+			bgcompcanv.width = canvas.width;
+			bgcompcanv.height = canvas.height;
+			Object.keys(backgrounds).every(function(key) {
+				bgcanv[key] = bgcanv[key] || document.createElement("canvas");
+				bgcanv[key].width = canvas.width;
+				bgcanv[key].height = canvas.height;
+				bgctx = bgcanv[key].getContext("2d");
+				backgrounds[key].draw(bgctx, scale, undefined, undefined,
+									  undefined, time);
+
+				bgctx = bgcompcanv.getContext("2d");
+				backgrounds[key].draw(bgctx, scale, undefined, undefined,
+									  undefined, time);
+				return true;
+			});
+		}
+		ctx.drawImage(bgcompcanv, 0, 0);
+/*
+		// TODO: background offset and layered scrolling support
+		Object.keys(backgrounds).every(function(key) {
+			ctx.drawImage(bgcanv[key], 0, 0);
+			return true;
+		});
+*/
+
+		// draw objects ordered by obj.y coordinate
+		var ordered = autoorder ? Object.keys(objects).sort(function(a, b) {
+			return objects[a].y - objects[b].y;
+		}) : Object.keys(objects);
 		for(i in ordered) {
-			objects[ordered[i]].draw(ctx, scale, undefined, undefined, time);
+			objects[ordered[i]].draw(ctx, scale, undefined, undefined,
+									 undefined, time);
+		}
+
+		// draw any vignette
+		if(vignette) {
+			ctx.save();
+			ctx.globalCompositeOperation = "overlay";
+			ctx.drawImage(vignette, 0, 0, canvas.width, canvas.height);
+			ctx.restore();
+		}
+
+		// draw any ghosting
+		if(ghostAmount) {
+			ctx.globalAlpha = ghostAmount;
+			ctx.drawImage(ghostCtx.canvas, 0, 0, canvas.width, canvas.height);
+			ctx.globalAlpha = 1;
+		}
+		if(glowAmount) {
+			ctx.save();
+			ctx.globalCompositeOperation = "overlay";
+			ctx.globalAlpha = glowAmount;
+			glowCtx.canvas.width = canvas.width / glowFactor;
+			glowCtx.canvas.height = canvas.height / glowFactor;
+			glowCtx.drawImage(canvas, 0, 0,
+							  glowCtx.canvas.width, glowCtx.canvas.height);
+			ctx.drawImage(glowCtx.canvas, 0, 0, canvas.width, canvas.height);
+			ctx.restore();
 		}
 
 		// draw any active transition
@@ -567,10 +810,14 @@ function penduinSCENE(canvas, logicWidth, logicHeight,
 			if(!trans.start) {
 				trans.start = time;
 			}
-			if(trans.fx.draw(ctx, time - trans.start, trans.out)) {
+			if(trans.fx.draw(ctx, time - trans.start, trans.out, scale)) {
 				trans.fx = null;
 				trans.start = 0;
 			}
+		}
+
+		for(i in texts) {
+			texts[i].draw(ctx, scale, time);
 		}
 
 		if(showfps) {
@@ -605,13 +852,98 @@ function penduinSCENE(canvas, logicWidth, logicHeight,
 		var obj = objects[name] || null;
 		if(obj) {
 			delete objects[name];
+			obj.scene = null;
 		}
 		return obj;
+	};
+
+	// add a named penduinOBJ to the scene as a background layer
+	this.addBG = function addBG(bg, name) {
+		if(!name) {
+			name = bg.name || "anonymous" + (uniq++);
+		}
+		backgrounds[name] = bg;
+		bg.scene = this;
+		return bg;
+	};
+	// remove (and return) a scene background
+	this.removeBG = function removeBG(name) {
+		var bg = backgrounds[name] || null;
+		if(bg) {
+			delete backgrounds[name];
+			bg.scene = null;
+		}
+		bg = bgcanv[name] || null;
+		if(bg) {
+			delete bgcanv[name];
+		}
+		return bg;
+	};
+
+	// add a named penduinTEXT plate to the scene
+	this.addTEXT = function addTEXT(text, name) {
+		if(!name) {
+			name = text.name || "anonymous" + (uniq++);
+		}
+		texts[name] = text;
+		text.scene = this;
+		return text;
+	};
+	// remove (and return) a scene text plate
+	this.removeTEXT = function removeTEXT(name) {
+		var text = texts[name] || null;
+		if(text) {
+			delete texts[name];
+			text.scene = null;
+		}
+		return text;
 	};
 
 	// set the scene's background color
 	this.setBG = function setBG(color) {
 		bg = color;
+	};
+
+	// set the scene's vignette (or null, or default)
+	this.setVignette = function setVignette(img) {
+		if(img === null) {
+			vignette = null;
+			return;
+		} else if(typeof(img) === "string") {
+			vignette = document.createElement("img");
+			vignette.src = img;
+		} else if(img) {
+			vignette = img;
+		} else {
+			vignette = document.createElement("img");
+			vignette.src = [
+				"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAA",
+				"ABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wINFwMGfDHM",
+				"5AAAAfdJREFUWMPFV9FuwzAIPBy3/cn9/z9sbcxe7IqgA7PtYZZQoybKHYe",
+				"5GAHwAeALwOf8XfEC8Jy/p4kBQE0AgJhoAA4THcBt/t5NPADcOwF/OvCXA9",
+				"8RUHIf5rnL6gTcxkkI6IbAmCrY+57IhYAF/ypmP4LsWqCCfVYZgedGektgm",
+				"Bd5BVj2bAkj4MFfBjirPxwJJfIzMgpAuwFj4J6AFghItf4ApCfATPoqAQlq",
+				"Lv66k53uQUdB/gXECFhypyfbg6wr2e96fGw24ZtANfNRqK06RxxBiU5PYCf",
+				"3LnsL7muvJgFvWGcnWTLwEbSXl1VdCRp5j1VHGgFBwcUiBUCeZ8SH9QFNgJ",
+				"mZ7BQQ55DpO1sCgIKR7JYmKilmLf51NdciCEzktyt6l1gnFHLD+7q4VtOAm",
+				"AQJMZuW1QXivuWZr0uiigR+z4CbNaJmWsO2pSSulingE/L/NXvd58FRiWlo",
+				"sjck+RZIEI3EYQlkdstcDZvPcQR6OTX3uRG1cIwahe6IwI8gOlMACaGfHEj",
+				"SzGfixxoakJxc5Q8EjgB4xc2WYGcmUjyUisu4MeB1vcYlSWp6kqN3dCzHRv",
+				"IF/o5FoPLh8Z6QDSaegM98Ebh7ApmTnab/WzKaCQE/fOZrSO1zSq3UX4rDa",
+				"Zb9BRzAgymAZIOdwfRTHc9vfjz/BqyPaNTRmnliAAAAAElFTkSuQmCC"
+			].join("");
+		}
+	};
+
+	// set scene ghost effect amount
+	this.setGhost = function setGhost(amount) {
+		ghostAmount = amount;
+	};
+	// set scene glow effect amount
+	this.setGlow = function setGlow(amount, factor) {
+		glowAmount = amount;
+		glowFactor = factor || 8;
+		glowFactor = Math.max(glowFactor, 1);
 	};
 
 	// set whether the scaling is jaggy or smooth
@@ -621,6 +953,16 @@ function penduinSCENE(canvas, logicWidth, logicHeight,
 		ctx.webkitImageSmoothingEnabled = !jaggy;
 		ctx.msImageSmoothingEnabled = !jaggy;
 		ctx.imageSmoothingEnabled = !jaggy;
+	};
+
+	// set whether to auto-sort drawing order
+	this.setAutoOrder = function setAutoOrder(auto) {
+		autoorder = auto;
+	};
+
+	// get the scene's scaling factor
+	this.getScale = function getScale() {
+		return scale;
 	};
 
 	// pause the scene
@@ -637,8 +979,13 @@ function penduinSCENE(canvas, logicWidth, logicHeight,
 	};
 
 	// begin a transition
-	this.transition = function transition(transObj, out) {
+	this.transition = function transition(transObj, out, x, y) {
 		trans.fx = transObj;
+		if(typeof(x) === "number" && typeof(y) === "number") {
+			trans.fx.setTarget(x, y);
+		} else {
+			trans.fx.setTarget(null, null);
+		}
 		trans.start = 0;
 		trans.out = out;
 	};
@@ -692,6 +1039,23 @@ function penduinSCENE(canvas, logicWidth, logicHeight,
 		tags = [];
 	};
 
+	// take a screenshot
+	this.screenshot = function screenshot() {
+		var a = document.createElement("a");
+		a.download = "screenshot.png";
+		if(a.download && btoa && canvas.toDataURL) {
+			a.href = canvas.toDataURL();
+			a.style.display = "none";
+			a.addEventListener("click", function(e) {
+				e.stopPropagation();
+			});
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+		} else {
+			console.error("ERROR: could not take a screenshot");
+		}
+	};
 
 	/* initialize */
 	run = true;
